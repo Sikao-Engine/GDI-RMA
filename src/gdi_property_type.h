@@ -109,9 +109,13 @@ typedef GDI_PropertyType_desc_t* GDI_PropertyType;
 /**
   predefined property types
  */
-GDI_PropertyType GDI_PROPERTY_TYPE_ID;
-GDI_PropertyType GDI_PROPERTY_TYPE_DEGREE;
-GDI_PropertyType GDI_PROPERTY_TYPE_INDEGREE;
-GDI_PropertyType GDI_PROPERTY_TYPE_OUTDEGREE;
+/* win32 port (xmake build): extern declarations instead of tentative
+   definitions in the header - the definitions live in gdi_init.c. Upstream
+   relied on -fcommon to collapse the duplicate tentative definitions, which
+   MSVC and gcc>=10 (-fno-common default) reject at link time. */
+extern GDI_PropertyType GDI_PROPERTY_TYPE_ID;
+extern GDI_PropertyType GDI_PROPERTY_TYPE_DEGREE;
+extern GDI_PropertyType GDI_PROPERTY_TYPE_INDEGREE;
+extern GDI_PropertyType GDI_PROPERTY_TYPE_OUTDEGREE;
 
 #endif // __GDI_PROPERTY_H_

@@ -82,7 +82,11 @@ typedef GDI_Label_desc_t* GDI_Label;
 /**
   predefined labels
  */
-GDI_Label GDI_LABEL_NONE;
+/* win32 port (xmake build): extern declaration instead of a tentative
+   definition in the header - the definition lives in gdi_init.c. Upstream
+   relied on -fcommon to collapse the duplicate tentative definitions, which
+   MSVC and gcc>=10 (-fno-common default) reject at link time. */
+extern GDI_Label GDI_LABEL_NONE;
 
 
 /**

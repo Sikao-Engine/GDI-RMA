@@ -35,7 +35,11 @@ static inline bool GDA_IsOpValid(GDI_Op op) {
   Convenience function that checks if an operation is allowed on a data type.
   The function assumes that the operation and data type are valid.
  */
-inline bool GDA_IsOpAllowedOnDatatype(GDI_Op op, GDI_Datatype dtype) {
+/* win32 port (xmake build): static inline instead of bare inline - with C99
+   inline semantics gcc emits no external copy, but MSVC (which ignores the
+   C99 inline rules in C mode) would emit one definition per TU including
+   this header (gda_constraint.c, gdi_constraint.c) and fail to link. */
+static inline bool GDA_IsOpAllowedOnDatatype(GDI_Op op, GDI_Datatype dtype) {
   /**
     this code only outlines the full decision - the shortened version is below
 

@@ -11,6 +11,15 @@
 
 #include "gdi.h"
 
+/* win32 port (xmake build): single definitions for the predefined label /
+   property-type handles that upstream declared (tentatively) in gdi_label.h
+   and gdi_property_type.h; they are initialized in GDI_Init below. */
+GDI_Label GDI_LABEL_NONE;
+GDI_PropertyType GDI_PROPERTY_TYPE_ID;
+GDI_PropertyType GDI_PROPERTY_TYPE_DEGREE;
+GDI_PropertyType GDI_PROPERTY_TYPE_INDEGREE;
+GDI_PropertyType GDI_PROPERTY_TYPE_OUTDEGREE;
+
 int GDI_Init( int *argc, char ***argv ) {
   // predefined label: GDI_LABEL_NONE
   GDI_LABEL_NONE = malloc(sizeof( GDI_Label_desc_t ));

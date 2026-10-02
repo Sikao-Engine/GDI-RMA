@@ -16,7 +16,12 @@
 
 #include "gdi.h"
 #include "gda_property.h"
-
+#ifdef _WIN32
+/* win32 port (xmake build): MSVC has no C99 VLAs; the two `bool
+   ptypes[ptype_max]` scans below use _alloca with the same automatic
+   lifetime instead. */
+#include <malloc.h>
+#endif
 /**
   linear scanning:
   organizes property and label as a linked list of records
@@ -650,8 +655,12 @@ int GDA_LinearScanningAddProperty( GDI_PropertyType ptype, const void* value, si
 void GDA_LinearScanningNumPropertyTypes( GDI_VertexHolder vertex, size_t* resultcount ) {
 
   uint32_t ptype_max = vertex->transaction->db->ptypes->ptype_max;
-
+#ifdef _WIN32
+  /* win32 port (xmake build): VLA -> _alloca (MSVC has no C99 VLAs) */
+  bool* ptypes = (bool*)_alloca(ptype_max * sizeof(bool));
+#else
   bool ptypes[ptype_max];
+#endif
   for( uint32_t i=0 ; i<ptype_max; i++ ) {
     ptypes[i] = false;
   }
@@ -703,8 +712,12 @@ int GDA_LinearScanningFindAllPropertyTypes( GDI_VertexHolder vertex, GDI_Propert
     first part uses the same algorithm as GDA_LinearScanningNumPropertyTypes
    */
   uint32_t ptype_max = graph_db->ptypes->ptype_max;
-
+#ifdef _WIN32
+  /* win32 port (xmake build): VLA -> _alloca (MSVC has no C99 VLAs) */
+  bool* present_ptypes = (bool*)_alloca(ptype_max * sizeof(bool));
+#else
   bool present_ptypes[ptype_max];
+#endif
   for( uint32_t i=0 ; i<ptype_max; i++ ) {
     present_ptypes[i] = false;
   }
