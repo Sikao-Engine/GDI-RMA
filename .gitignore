@@ -75,6 +75,4 @@ build-*/
 # ---- Xmake ----
 .xmake/
 xmake-*.log
-
-# ---- xmake build outputs (standalone gdi_rma build) ----
 bin/
