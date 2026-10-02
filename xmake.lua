@@ -302,9 +302,23 @@ target("gdi_rma")
     add_files("src/*.c")
     add_headerfiles("src/*.h")
     add_includedirs("src")
+    -- Phase 4: the C FFI export layer.  Compiled into THIS target on purpose
+    -- (one shared library, one heap): src/api/*.c reaches the GDI_*/GDA_*
+    -- symbols by direct call and exports its own surface with GDI_RMA_API
+    -- (dllexport), which MSVC unions with the generated /DEF list; see the
+    -- gdi_mpi rule above.  `src/*.c` does not glob across directories, so the
+    -- api sources are added explicitly.
+    add_files("src/api/*.c")
+    add_headerfiles("src/api/*.h")
+    add_includedirs("src/api")
+    -- xmake does not auto-define GDI_RMA_EXPORT_DLL for a shared target on
+    -- MSVC, so the three-state macro in src/api/dll_export.h would silently
+    -- fall back to dllimport.  Target-scoped and deliberately not public: an
+    -- embedder that compiles these sources statically defines GDI_RMA_STATIC.
+    add_defines("GDI_RMA_EXPORT_DLL")
     set_languages("c11")
     if is_mode("debug") then
-        add_defines("DEBUG")
+        add_defines("DEBUG", "GDI_RMA_DEBUG_BUILD")
     else
         -- mirrors the Makefile's -O3: -O3 on gcc/clang, /O2 on msvc
         set_optimize("fastest")
@@ -320,6 +334,27 @@ target("smoke_gdi_rma")
     set_targetdir("$(projectdir)/bin/$(mode)")
     add_files("tests-smoke/gdi_smoke.c")
     add_includedirs("src")
+    set_languages("c11")
+    if is_mode("debug") then
+        add_defines("DEBUG")
+    end
+    add_deps("gdi_rma")
+target_end()
+
+-- Phase 4 smoke test: the C FFI surface only.  tests-smoke/gdi_rma_api_smoke.c
+-- includes nothing but src/api/gdi_rma_api.h and calls the exported symbols, so
+-- it proves the dllexport path and the wrapper's GDI translations at once.
+-- Build explicitly: xmake build smoke_gdi_rma_api
+-- Run:  "C:/Program Files/Microsoft MPI/Bin/mpiexec.exe" -n 1 bin/release/smoke_gdi_rma_api
+target("smoke_gdi_rma_api")
+    set_kind("binary")
+    set_default(false)
+    add_rules("gdi_mpi")
+    set_targetdir("$(projectdir)/bin/$(mode)")
+    add_files("tests-smoke/gdi_rma_api_smoke.c")
+    -- the FFI header is self-contained (no mpi.h), the src/ include path is not
+    -- needed here at all -- another way of checking the ABI has no MPI leak.
+    add_includedirs("src/api")
     set_languages("c11")
     if is_mode("debug") then
         add_defines("DEBUG")
